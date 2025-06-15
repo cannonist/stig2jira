@@ -8,6 +8,9 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
+# markdown to adf
+from simple_md_to_adf import markdown_to_adf
+
 jira_url = os.getenv("JIRA_URL")
 jira_user = os.getenv("JIRA_USER")
 jira_token = os.getenv("JIRA_TOKEN")
@@ -68,23 +71,6 @@ def write_markdown(tickets, source_filename):
             file.write(ticket["description"] + "\n")
             file.write("\n" + "-"*80 + "\n\n")
 
-# test ADF
-def adf_description(md_description):
-    return {
-        "type": "doc",
-        "version": 1,
-        "content": [
-            {
-                "type": "paragraph",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": md_description
-                    }
-                ]
-            }
-        ]
-    }
 
 def create_jira_ticket(ticket):
 
@@ -97,7 +83,7 @@ def create_jira_ticket(ticket):
     fields = {
         "project": {"key": jira_project_key},
         "summary": ticket["summary"],
-        "description": adf_description(ticket["description"]),
+        "description": markdown_to_adf(ticket["description"]),
         "issuetype": {"name": ticket.get("issue_type", "Task")}
     }
     
