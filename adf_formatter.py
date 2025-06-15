@@ -1,11 +1,23 @@
 # ADF boilerplate for STIG checklist data
 
-def adf_paragraph(lines):
+# **bold**, regular text
+def adf_tuple(lines):
     content = []
-    for i, line in enumerate(lines):
+
+    for i, (label, value) in enumerate(lines):
         if i > 0:
             content.append({"type": "hardBreak"})
-        content.append({"type": "text", "text": line})
+        
+        content.append({
+            "type": "text",
+            "text": f"{label} ",
+            "marks": [{"type": "strong"}]
+        })
+        content.append({
+            "type": "text",
+            "text": value
+        })
+
     return {"type": "paragraph", "content": content}
 
 
@@ -25,19 +37,31 @@ def adf_blockquote(text):
     }
 
 
+# Could have config for multiple boilerplates
 def stig_check_to_adf(fields):
-    metadata = adf_paragraph([
-        f"STIG: {fields.get('stig_name', '')}",
-        f"Group ID: {fields.get('group_id', '')}",
-        f"Severity: {fields.get('severity', '')}",
-        f"Status: {fields.get('status', '')}"
+    metadata = adf_tuple([
+        ("STIG", fields.get('stig_name', '')),
+        ("Group ID", fields.get('group_id', '')),
+        ("Severity", fields.get('severity', '')),
+        ("Status", fields.get('status', ''))
     ])
 
-    check_block = adf_blockquote(fields.get("check_content", ""))
+    finding_header = adf_tuple([("Finding Details","")])
+    finding_block = adf_blockquote(fields.get("finding_details", ""))
+
+    fix_header = adf_tuple([("Fix", "")])
     fix_block = adf_blockquote(fields.get("fix_text", ""))
+
+    check_header = adf_tuple([("Check", "Check the fix with:")])
+    check_block = adf_blockquote(fields.get("check_content", ""))
 
     return {
         "type": "doc",
         "version": 1,
-        "content": [metadata, check_block, fix_block]
+        "content": [
+            metadata,
+            finding_header, finding_block,
+            fix_header, fix_block,
+            check_header, check_block
+            ]
     }

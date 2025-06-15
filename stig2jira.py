@@ -58,7 +58,7 @@ def write_markdown(tickets, source_filename):
 
         for ticket in tickets:
             file.write(f"## {ticket["summary"]}\n\n")
-            file.write(ticket["description"] + "\n")
+            file.write(ticket["description"] + "\n") # broken
             file.write("\n" + "-"*80 + "\n\n")
 
 
@@ -73,7 +73,7 @@ def create_jira_ticket(ticket):
     fields = {
         "project": {"key": jira_project_key},
         "summary": ticket["summary"],
-        "description": stig_check_to_adf(ticket["description"]),
+        "description": stig_check_to_adf(ticket),
         "issuetype": {"name": ticket.get("issue_type", "Task")}
     }
     
