@@ -8,6 +8,9 @@ import requests
 from dotenv import load_dotenv
 load_dotenv()
 
+# markdown to adf
+from adf_formatter import stig_check_to_adf
+
 jira_url = os.getenv("JIRA_URL")
 jira_user = os.getenv("JIRA_USER")
 jira_token = os.getenv("JIRA_TOKEN")
@@ -15,47 +18,37 @@ jira_project_key = os.getenv("JIRA_PROJECT_KEY")
 jira_issue_type = os.getenv("JIRA_ISSUE_TYPE")
 jira_reporter_id = os.getenv("JIRA_REPORTER_ID")
 
-# 
+
 def parse_cklb(file_path):
     with open(file_path, "r", encoding="utf-8") as checklist:
         data = json.load(checklist)
     
     tickets = []
     stigs = data.get("stigs", [])
+
     for stig in stigs:
 
-        # todo; consider "stig_name", "display_name", and "stig_id"
-        stig_name = stig.get("display_name")
+        stig_name = stig.get("display_name") # Alternatively "stig_name" :: name of the file 
 
         for rule in stig.get("rules",[]):
-            if rule.get("status") == "open":
-                ticket = draft_ticket(rule, stig_name)
-                tickets.append(ticket)
 
+            if rule.get("status") != "open":
+                continue
+
+            ticket = {
+                "summary": f"{rule.get('group_id')} - {rule.get('rule_title')}",
+                "stig_name": stig_name,
+                "group_id": rule.get("group_id"),
+                "severity": rule.get("severity"),
+                "status": rule.get("status"),
+                "fix_text": rule.get("fix_text", ""),
+                "check_content": rule.get("check_content", ""),
+                "finding_details": rule.get("finding_details", "")
+            }
+
+            tickets.append(ticket)
+    
     return tickets
-
-
-def draft_ticket(rule, stig_name):
-    return {
-        "summary": f"{rule.get("group_id")} - {rule.get("rule_title")}",
-        "description": f"""\
-**STIG:** {stig_name}
-**V-ID:** {rule.get("group_id")}
-**Severity:** {rule.get("severity")}
-**Status:** {rule.get("status")}
-
-**Finding Details:**
-> {rule.get("finding_details", "").strip().replace("\n", "\n> ")}
-
-**Fix:**
-> {rule.get("fix_text","").strip().replace("\n", "\n> ")}
-
-**Test:**
-Confirm the change with:
-> {rule.get("check_content","").strip().replace("\n", "\n> ")}
-
-"""
-    }
 
 
 def write_markdown(tickets, source_filename):
@@ -65,26 +58,9 @@ def write_markdown(tickets, source_filename):
 
         for ticket in tickets:
             file.write(f"## {ticket["summary"]}\n\n")
-            file.write(ticket["description"] + "\n")
+            file.write(ticket["description"] + "\n") # broken
             file.write("\n" + "-"*80 + "\n\n")
 
-# test ADF
-def adf_description(md_description):
-    return {
-        "type": "doc",
-        "version": 1,
-        "content": [
-            {
-                "type": "paragraph",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": md_description
-                    }
-                ]
-            }
-        ]
-    }
 
 def create_jira_ticket(ticket):
 
@@ -97,7 +73,7 @@ def create_jira_ticket(ticket):
     fields = {
         "project": {"key": jira_project_key},
         "summary": ticket["summary"],
-        "description": adf_description(ticket["description"]),
+        "description": stig_check_to_adf(ticket),
         "issuetype": {"name": ticket.get("issue_type", "Task")}
     }
     
