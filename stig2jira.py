@@ -57,8 +57,7 @@ def write_markdown(tickets, source_filename):
         file.write(f"# Draft Jira Tickets from {os.path.basename(source_filename)}\n\n")
 
         for ticket in tickets:
-            file.write(f"## {ticket["summary"]}\n\n")
-            file.write(ticket["description"] + "\n") # broken
+            file.write(json.dumps(ticket, indent=))
             file.write("\n" + "-"*80 + "\n\n")
 
 
