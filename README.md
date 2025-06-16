@@ -4,6 +4,8 @@
 
 It helps automate some of my security compliance workflows by turning open findings into trackable tasks — formatted using Atlassian Document Format (ADF).
 
+![Image](https://github.com/user-attachments/assets/22b1816f-69de-4162-8321-e95cf9f519d0)
+
 ## Features
 
 - Parses `.cklb` JSON files directly
@@ -13,8 +15,6 @@ It helps automate some of my security compliance workflows by turning open findi
   - Blockquoted fix & check guidance
 - Dry-run mode with Markdown preview
 - Uses `.env` config for Jira API credentials
-
-![Image](https://github.com/user-attachments/assets/22b1816f-69de-4162-8321-e95cf9f519d0)
 
 ## Requirements
 
