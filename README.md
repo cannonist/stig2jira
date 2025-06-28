@@ -50,11 +50,11 @@ python stig2jira.py ./RHEL8.cklb --confirm
 
 Create a .env file in the project root with:
 
-JIRA_URL=https://yourdomain.atlassian.net
-JIRA_USER=your-email@example.com
-JIRA_API_KEY=your-api-token
-JIRA_PROJECT_KEY=SEC
-JIRA_REPORTER_ID=123456
+- JIRA_URL=https://yourdomain.atlassian.net
+- JIRA_USER=your-email@example.com
+- JIRA_API_KEY=your-api-token
+- JIRA_PROJECT_KEY=SEC
+- JIRA_REPORTER_ID=123456
 
 ## Project Structure
 
